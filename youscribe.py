@@ -1,4 +1,5 @@
 import os
+import sys
 
 from urllib.parse import urlparse
 from pytube import YouTube
@@ -62,3 +63,12 @@ def get_transcript_for_audio_file(file_name: str):
         f.write(transcript.text)
 
     return transcript.text
+
+
+if __name__ == "__main__":
+    openai_key = get_openai_key()
+    # get URL from command line parameter
+    url = sys.argv[1]
+    file_name = save_url_to_file(url)
+    transcript = get_transcript_for_audio_file(file_name)
+    print(transcript)
