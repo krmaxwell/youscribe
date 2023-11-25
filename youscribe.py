@@ -1,5 +1,10 @@
+import os
+
 from urllib.parse import urlparse
 from pytube import YouTube
+from openai import OpenAI, audio
+
+openai_key = ""
 
 
 def get_yt_code(url: str):
@@ -25,5 +30,35 @@ def save_url_to_file(url: str):
     return f"{video_id}.mp4"
 
 
-def get_transcript_for_file(file_name: str):
-    return "Hello, world!"
+def get_openai_key(file_location: str = ""):
+    openai_key = ""
+
+    if file_location:
+        with open(file_location, "r") as f:
+            openai_key = f.read().strip()
+    elif "OPENAI_KEY" in os.environ:
+        openai_key = os.environ["OPENAI_KEY"]
+
+    if openai_key == "":
+        raise ValueError("OpenAI key cannot be blank")
+    return openai_key
+
+
+def get_transcript_for_audio_file(file_name: str):
+    if file_name == "":
+        raise ValueError("File name cannot be blank")
+
+    if openai_key == "":
+        raise ValueError("OpenAI key cannot be blank")
+
+    client = OpenAI(api_key=openai_key)
+    audio_file = open(file_name, "rb")
+    transcript = client.audio.transcriptions.create(model="whisper-1", file=audio_file)
+    audio_file.close()
+
+    # get file name without extension
+    plain_file_name = os.path.splitext(file_name)[0]
+    with open(f"{plain_file_name}.txt", "w") as f:
+        f.write(transcript.text)
+
+    return transcript.text
