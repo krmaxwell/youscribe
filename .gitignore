@@ -31,6 +31,10 @@ build/
 
 # test data
 *.mp4
+*.txt
 
 # Jupyter Notebook
 *.ipynb
+
+# API key
+.openai
